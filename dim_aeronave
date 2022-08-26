@@ -1,0 +1,10 @@
+let
+    Fonte = Csv.Document(File.Contents("C:\Users\olgas\OneDrive\Documentos\Pós\TCC\Bases_Ocorrencias_ANAC\aeronave.csv"),[Delimiter=";", Columns=23, Encoding=65001, QuoteStyle=QuoteStyle.None]),
+    #"Cabeçalhos Promovidos" = Table.PromoteHeaders(Fonte, [PromoteAllScalars=true]),
+    #"Tipo Alterado" = Table.TransformColumnTypes(#"Cabeçalhos Promovidos",{{"codigo_ocorrencia2", type text}, {"aeronave_matricula", type text}, {"aeronave_operador_categoria", type text}, {"aeronave_tipo_veiculo", type text}, {"aeronave_fabricante", type text}, {"aeronave_modelo", type text}, {"aeronave_tipo_icao", type text}, {"aeronave_motor_tipo", type text}, {"aeronave_motor_quantidade", type text}, {"aeronave_pmd", Int64.Type}, {"aeronave_pmd_categoria", Int64.Type}, {"aeronave_assentos", Int64.Type}, {"aeronave_ano_fabricacao", Int64.Type}, {"aeronave_pais_fabricante", type text}, {"aeronave_pais_registro", type text}, {"aeronave_registro_categoria", type text}, {"aeronave_registro_segmento", type text}, {"aeronave_voo_origem", type text}, {"aeronave_voo_destino", type text}, {"aeronave_fase_operacao", type text}, {"aeronave_tipo_operacao", type text}, {"aeronave_nivel_dano", type text}, {"aeronave_fatalidades_total", Int64.Type}}),
+    #"Colunas Renomeadas" = Table.RenameColumns(#"Tipo Alterado",{{"codigo_ocorrencia2", "FK_codigo_ocorrencia"}}),
+    #"Valor Substituído" = Table.ReplaceValue(#"Colunas Renomeadas","***","NÃO INFORMADO",Replacer.ReplaceText,{"aeronave_operador_categoria"}),
+    #"Índice Adicionado" = Table.AddIndexColumn(#"Valor Substituído", "PK_Aeronave", 0, 1, Int64.Type),
+    #"Tipo Alterado1" = Table.TransformColumnTypes(#"Índice Adicionado",{{"PK_Aeronave", type text}})
+in
+    #"Tipo Alterado1"
