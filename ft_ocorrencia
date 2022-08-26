@@ -1,0 +1,16 @@
+let
+    Fonte = Csv.Document(File.Contents("C:\Users\olgas\OneDrive\Documentos\Pós\TCC\Bases_Ocorrencias_ANAC\ocorrencia.csv"),[Delimiter=";", Columns=22, Encoding=65001, QuoteStyle=QuoteStyle.None]),
+    #"Cabeçalhos Promovidos" = Table.PromoteHeaders(Fonte, [PromoteAllScalars=true]),
+    #"Tipo Alterado" = Table.TransformColumnTypes(#"Cabeçalhos Promovidos",{{"codigo_ocorrencia", type text}, {"codigo_ocorrencia1", Int64.Type}, {"codigo_ocorrencia2", Int64.Type}, {"codigo_ocorrencia3", Int64.Type}, {"codigo_ocorrencia4", Int64.Type}, {"ocorrencia_classificacao", type text}, {"ocorrencia_latitude", type text}, {"ocorrencia_longitude", type text}, {"ocorrencia_cidade", type text}, {"ocorrencia_uf", type text}, {"ocorrencia_pais", type text}, {"ocorrencia_aerodromo", type text}, {"ocorrencia_dia", type date}, {"ocorrencia_hora", type time}, {"investigacao_aeronave_liberada", type text}, {"investigacao_status", type text}, {"divulgacao_relatorio_numero", type text}, {"divulgacao_relatorio_publicado", type text}, {"divulgacao_dia_publicacao", type text}, {"total_recomendacoes", Int64.Type}, {"total_aeronaves_envolvidas", Int64.Type}, {"ocorrencia_saida_pista", type text}}),
+    #"Colunas Removidas" = Table.RemoveColumns(#"Tipo Alterado",{"codigo_ocorrencia1", "codigo_ocorrencia2", "codigo_ocorrencia3", "codigo_ocorrencia4"}),
+    #"Colunas Renomeadas" = Table.RenameColumns(#"Colunas Removidas",{{"codigo_ocorrencia", "PK_codigo_ocorrencia"}}),
+    #"Consultas Mescladas Aeronave" = Table.NestedJoin(#"Colunas Renomeadas", {"PK_codigo_ocorrencia"}, dim_aeronave, {"FK_codigo_ocorrencia"}, "dim_aeronave", JoinKind.LeftOuter),
+    #"dim_aeronave Expandido" = Table.ExpandTableColumn(#"Consultas Mescladas Aeronave", "dim_aeronave", {"PK_Aeronave"}, {"FK_Aeronave"}),
+    #"Consultas Mescladas Fator Contribuinte" = Table.NestedJoin(#"dim_aeronave Expandido", {"PK_codigo_ocorrencia"}, dim_fator_contribuinte, {"FK_codigo_ocorrencia"}, "dim_fator_contribuinte", JoinKind.LeftOuter),
+    #"dim_fator_contribuinte Expandido" = Table.ExpandTableColumn(#"Consultas Mescladas Fator Contribuinte", "dim_fator_contribuinte", {"PK_fator_contribuinte"}, {"FK_fator_contribuinte"}),
+    #"Consultas Mescladas OcorrenciaTipo" = Table.NestedJoin(#"dim_fator_contribuinte Expandido", {"PK_codigo_ocorrencia"}, dim_ocorrencia_tipo, {"FK_codigo_ocorrencia"}, "dim_ocorrencia_tipo", JoinKind.LeftOuter),
+    #"dim_ocorrencia_tipo Expandido" = Table.ExpandTableColumn(#"Consultas Mescladas OcorrenciaTipo", "dim_ocorrencia_tipo", {"PK_ocorrencia_tipo"}, {"FK_ocorrencia_tipo"}),
+    #"Consultas Mescladas Recomendação" = Table.NestedJoin(#"dim_ocorrencia_tipo Expandido", {"PK_codigo_ocorrencia"}, dim_recomendacao, {"FK_codigo_ocorrencia"}, "dim_recomendacao", JoinKind.LeftOuter),
+    #"dim_recomendacao Expandido" = Table.ExpandTableColumn(#"Consultas Mescladas Recomendação", "dim_recomendacao", {"PK_recomendacao"}, {"FK_recomendacao"})
+in
+    #"dim_recomendacao Expandido"
