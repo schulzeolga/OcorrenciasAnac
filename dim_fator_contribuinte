@@ -1,0 +1,9 @@
+let
+    Fonte = Csv.Document(File.Contents("C:\Users\olgas\OneDrive\Documentos\Pós\TCC\Bases_Ocorrencias_ANAC\fator_contribuinte.csv"),[Delimiter=";", Columns=5, Encoding=65001, QuoteStyle=QuoteStyle.None]),
+    #"Cabeçalhos Promovidos" = Table.PromoteHeaders(Fonte, [PromoteAllScalars=true]),
+    #"Tipo Alterado" = Table.TransformColumnTypes(#"Cabeçalhos Promovidos",{{"codigo_ocorrencia3", type text}, {"fator_nome", type text}, {"fator_aspecto", type text}, {"fator_condicionante", type text}, {"fator_area", type text}}),
+    #"Colunas Renomeadas" = Table.RenameColumns(#"Tipo Alterado",{{"codigo_ocorrencia3", "FK_codigo_ocorrencia"}}),
+    #"Índice Adicionado" = Table.AddIndexColumn(#"Colunas Renomeadas", "PK_fator_contribuinte", 0, 1, Int64.Type),
+    #"Tipo Alterado1" = Table.TransformColumnTypes(#"Índice Adicionado",{{"PK_fator_contribuinte", type text}})
+in
+    #"Tipo Alterado1"
