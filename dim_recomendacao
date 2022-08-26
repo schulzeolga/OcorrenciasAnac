@@ -1,0 +1,9 @@
+let
+    Fonte = Csv.Document(File.Contents("C:\Users\olgas\OneDrive\Documentos\Pós\TCC\Bases_Ocorrencias_ANAC\recomendacao.csv"),[Delimiter=";", Columns=9, Encoding=65001, QuoteStyle=QuoteStyle.None]),
+    #"Cabeçalhos Promovidos" = Table.PromoteHeaders(Fonte, [PromoteAllScalars=true]),
+    #"Tipo Alterado" = Table.TransformColumnTypes(#"Cabeçalhos Promovidos",{{"codigo_ocorrencia4", type text}, {"recomendacao_numero", type text}, {"recomendacao_dia_assinatura", type date}, {"recomendacao_dia_encaminhamento", type date}, {"recomendacao_dia_feedback", type text}, {"recomendacao_conteudo", type text}, {"recomendacao_status", type text}, {"recomendacao_destinatario_sigla", type text}, {"recomendacao_destinatario", type text}}),
+    #"Colunas Renomeadas" = Table.RenameColumns(#"Tipo Alterado",{{"codigo_ocorrencia4", "FK_codigo_ocorrencia"}}),
+    #"Índice Adicionado" = Table.AddIndexColumn(#"Colunas Renomeadas", "PK_recomendacao", 0, 1,Int64.Type),
+    #"Tipo Alterado1" = Table.TransformColumnTypes(#"Índice Adicionado",{{"PK_recomendacao", type text}})
+in
+    #"Tipo Alterado1"
