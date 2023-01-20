@@ -1,0 +1,10 @@
+let
+    Fonte = Csv.Document(File.Contents(Source&"/vendas-derivados-petroleo-etanol-m3-1990-2022.csv"),[Delimiter=";", Columns=38, Encoding=65001, QuoteStyle=QuoteStyle.None]),
+    #"Remover demais colunas" = Table.SelectColumns(Fonte,{"Column1", "Column2", "Column3", "Column4", "Column5", "Column6"}),
+    #"Cabeçalhos promovidos" = Table.PromoteHeaders(#"Remover demais colunas", [PromoteAllScalars=true]),
+    #"Colunas renomeadas" = Table.RenameColumns(#"Cabeçalhos promovidos",{{"VENDAS", "VENDAS (m3)"}}),
+    #"Tipo alterado" = Table.TransformColumnTypes(#"Colunas renomeadas",{{"VENDAS (m3)", type number}}),
+    #"Linhas Filtradas" = Table.SelectRows(#"Tipo alterado", each ([PRODUTO] = "GASOLINA DE AVIAÇÃO" or [PRODUTO] = "QUEROSENE DE AVIAÇÃO")),
+    Date_Key = Table.AddColumn(#"Linhas Filtradas", "Date_Key", each Date.FromText("01 "&[MÊS]&[ANO], [Culture ="pt-BR"]), type date)
+in
+    Date_Key
